@@ -96,9 +96,6 @@ public class TokenizerTest {
         Tokenizer tokenizer = new Tokenizer(input);
         try {
             tokenizer.tokenize();
-            for (Token token : tokenizer.getTokens()) {
-                System.out.println(token.toString());
-            }
             assertEquals(9, tokenizer.getTokens().size());
         } catch (TokenizerError error) {
             System.out.println(error.getMessage());
@@ -148,5 +145,52 @@ public class TokenizerTest {
         }
     }
 
+    @Test
+    public void orderByTokenizerTest(){
+        String input = " var sortedWords = \n" +
+                "        from w in words \n" +
+                "        orderby w.field \n" +
+                "        select w;";
+        Tokenizer tokenizer = new Tokenizer(input);
+        try {
+            tokenizer.tokenize();
+            assertEquals(14, tokenizer.getTokens().size());
+        } catch (TokenizerError error) {
+            System.out.println(error.getMessage());
+        }
+
+    }
+
+    @Test
+    public void MaxTokenizerTest(){
+        String input = "int[] numbers = { 5, 4, 1, 3, 9, 8, 6, 7, 2, 0 }; \n" +
+                "  \n" +
+                "    int maxNum = numbers.Max();";
+        Tokenizer tokenizer = new Tokenizer(input);
+        try {
+            tokenizer.tokenize();
+            assertEquals(36, tokenizer.getTokens().size());
+        } catch (TokenizerError error) {
+            System.out.println(error.getMessage());
+        }
+    }
+
+    @Test
+    public void firstOrDefaultTokenizerTest(){
+        String input = "int firstNumOrDefault = numbers.FirstOrDefault();";
+        Tokenizer tokenizer = new Tokenizer(input);
+        try {
+            tokenizer.tokenize();
+
+            for (Token token : tokenizer.getTokens()){
+                System.out.println(token);
+            }
+            assertEquals(9, tokenizer.getTokens().size());
+        } catch (TokenizerError error) {
+            System.out.println(error.getMessage());
+        }
+    }
+
 
 }
+

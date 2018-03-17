@@ -6,8 +6,8 @@ import java.util.regex.Pattern;
 public class Tokenizer {
     public static final Pattern ID_PATTERN = Pattern.compile("^[a-zA-Z][a-zA-z0-9_]*");
     public static final Pattern NUMBER_PATTERN = Pattern.compile("[0-9]+");
-    public static final HashMap<String, TokenType> keywords = new HashMap<>();
-
+    private static final LinkedHashMap<String, TokenType> keywords = new LinkedHashMap<>();
+    private static final HashMap<String, TokenType> characters = new HashMap<>();
     private String input;
     private int line;
     private int column;
@@ -16,14 +16,43 @@ public class Tokenizer {
     static {
         keywords.put("var", TokenType.VARIABLE);
         keywords.put("from", TokenType.FROM);
+        keywords.put("int", TokenType.DATA_TYPE);
         keywords.put("in", TokenType.IN);
         keywords.put("where", TokenType.WHERE);
+        keywords.put("FirstOrDefault", TokenType.FIRST_OR_DEFAULT);
+        keywords.put("Equals", TokenType.EQUALS_TERM);
         keywords.put("orderby", TokenType.ORDER_BY);
+        keywords.put("ascending", TokenType.ASCENDING);
         keywords.put("descending", TokenType.DESCENDING);
         keywords.put("select", TokenType.SELECT);
         keywords.put("null", TokenType.NULL);
         keywords.put("new", TokenType.NEW);
-        keywords.put("Equals", TokenType.EQUALS_TERM);
+
+        keywords.put("Min", TokenType.MIN);
+        keywords.put("Max", TokenType.MAX);
+        keywords.put("OrderByDescending", TokenType.ORDER_BY_DESCENDING);
+
+        characters.put(")", TokenType.CLOSING_BRACKET);
+        characters.put("(", TokenType.OPENING_BRACKET);
+        characters.put("{", TokenType.OPENING_CURLING_BRACKET);
+        characters.put("}", TokenType.CLOSING_CURLING_BRACKET);
+        characters.put("[", TokenType.OPENING_SQUARE_BRACKET);
+        characters.put("]", TokenType.CLOSING_SQUARE_BRACKET);
+        characters.put("=", TokenType.EQUALS);
+        characters.put(";", TokenType.SEMICOLN);
+        characters.put(".", TokenType.DOT);
+        characters.put("\"", TokenType.QUOTATION_MARK);
+        characters.put("!", TokenType.NEGATION);
+        characters.put("=>", TokenType.LAMBDA_OPERATOR);
+        characters.put(",", TokenType.COMMA);
+        characters.put("&&", TokenType.LOGICAL_OPERATOR);
+        characters.put("||", TokenType.LOGICAL_OPERATOR);
+        characters.put(">", TokenType.OPERATOR);
+        characters.put("<", TokenType.OPERATOR);
+        characters.put("<=", TokenType.OPERATOR);
+        characters.put(">=", TokenType.OPERATOR);
+        characters.put("==", TokenType.OPERATOR);
+
     }
 
     public Tokenizer(String input) {
@@ -53,22 +82,18 @@ public class Tokenizer {
         skipBeginningWhiteSpaces();
 
         while (!input.isEmpty()) {
-            boolean tokened =
-                    tryToMatchCharacter(")", TokenType.OPENING_BRACKET)
-                            || tryToMatchCharacter("(", TokenType.CLOSING_BRACKET)
-                            || tryToMatchCharacter("{", TokenType.OPENING_CURLING_BRACKET)
-                            || tryToMatchCharacter("}", TokenType.CLOSING_CURLING_BRACKET)
-                            || tryToMatchCharacter("[", TokenType.OPENING_SQUARE_BRACKET)
-                            || tryToMatchCharacter("]", TokenType.CLOSING_SQUARE_BRACKET)
-                            || tryToMatchCharacter("=", TokenType.EQUALS)
-                            || tryToMatchCharacter(";", TokenType.SEMICOLN)
-                            || tryToMatchCharacter(".", TokenType.DOT)
-                            || tryToMatchCharacter("\"", TokenType.QUOTATION_MARK)
-                            || tryToMatchCharacter("!", TokenType.NEGATION)
-                            || tryToMatchKeywords()
-                            || tryToMatchRegex(NUMBER_PATTERN, TokenType.NUMBER)
-                            || tryToMatchRegex(ID_PATTERN, TokenType.ID);
+            //try to match characters
+            boolean tokened = false;
+            Set<Entry<String, TokenType>> entrySet = characters.entrySet();
+            Iterator<Entry<String, TokenType>> iterator = entrySet.iterator();
+            while (iterator.hasNext() && !tokened) {
+                Entry<String, TokenType> entry = iterator.next();
+                tokened = tryToMatchCharacter(entry.getKey(), entry.getValue());
+            }
 
+            if (!tokened) {
+                tokened = tryToMatchRegex(NUMBER_PATTERN, TokenType.NUMBER) || tryToMatchKeywords() || tryToMatchRegex(ID_PATTERN, TokenType.ID);
+            }
 
             if (!tokened) {
                 throw new TokenizerError("Tokenizer error at line " + line + " at column " + column + "\nInput not matched:" + input);
@@ -83,8 +108,8 @@ public class Tokenizer {
         boolean matched = false;
         Set<Entry<String, TokenType>> entrySet = keywords.entrySet();
         Iterator<Entry<String, TokenType>> iterator = entrySet.iterator();
-        while (iterator.hasNext() && !matched){
-            Entry<String,TokenType> entry = iterator.next();
+        while (iterator.hasNext() && !matched) {
+            Entry<String, TokenType> entry = iterator.next();
             matched = tryToMatchRegex(Pattern.compile(entry.getKey()), keywords.get(entry.getKey()));
         }
         return matched;
