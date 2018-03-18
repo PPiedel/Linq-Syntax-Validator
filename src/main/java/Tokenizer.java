@@ -11,6 +11,7 @@ public class Tokenizer {
     private String input;
     private int line;
     private int column;
+    private int currentTokenNumber;
     private List<Token> tokens;
 
     static {
@@ -60,6 +61,7 @@ public class Tokenizer {
         tokens = new ArrayList<>();
         line = 1;
         column = 1;
+        currentTokenNumber = 0;
     }
 
     public int getLine() {
@@ -103,6 +105,17 @@ public class Tokenizer {
         skipBeginningWhiteSpaces();
 
     }
+
+    public Token nextToken() throws TokenizerError {
+        currentTokenNumber++;
+        if (currentTokenNumber-1 < tokens.size()) {
+            return tokens.get(currentTokenNumber-1);
+
+        } else {
+            return new Token(TokenType.EOF, "EOF", line, column + 1);
+        }
+    }
+
 
     public boolean tryToMatchKeywords() {
         boolean matched = false;
