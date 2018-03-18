@@ -78,10 +78,148 @@ public class Parser {
                 pollCurrentToken(TokenType.NUMBER);
                 break;
             }
+            case FROM: {
+                simpleQueryCommand();
+                break;
+            }
+            case OPENING_BRACKET: {
+                complexQueryCommand();
+                break;
+            }
+            case ID : {
+                pollCurrentToken(TokenType.ID);
+                break;
+            }
+
             default: {
                 throw new ParserError("Parser error");
             }
         }
+    }
+
+    public void simpleQueryCommand() throws ParserError {
+        queryBegin();
+        queryBody();
+        orderBy();
+        select();
+    }
+
+    public void queryBegin() throws ParserError {
+        pollCurrentToken(TokenType.FROM);
+        pollCurrentToken(TokenType.ID);
+        pollCurrentToken(TokenType.IN);
+        collection();
+    }
+
+    public void collection() throws ParserError {
+        pollCurrentToken(TokenType.ID); //TODO not only ids
+    }
+
+    public void queryBody() throws ParserError {
+        queries();
+    }
+
+    public void queries() throws ParserError {
+        if (currentToken.getTokenType() == TokenType.WHERE) {
+            query();
+            queries();
+        }
+    }
+
+    public void query() throws ParserError {
+        pollCurrentToken(TokenType.WHERE);
+        expr();
+        whereExprContinuation();
+    }
+
+    public void expr() throws ParserError {
+        switch (currentToken.getTokenType()) {
+            case NEGATION: {
+                pollCurrentToken(TokenType.NEGATION);
+                objectField();
+                oneComponentExprRest();
+            }
+            case ID: {
+                pollCurrentToken(TokenType.ID);
+                fieldAccesses();
+            }
+        }
+    }
+
+    public void objectField() throws ParserError {
+        pollCurrentToken(TokenType.ID);
+        fieldAccesses();
+    }
+
+    public void fieldAccesses() throws ParserError {
+        if (currentToken.getTokenType() == TokenType.DOT) {
+            fieldAccess();
+            fieldAccesses();
+        }
+    }
+
+    public void fieldAccess() throws ParserError {
+        pollCurrentToken(TokenType.DOT);
+        pollCurrentToken(TokenType.ID);
+    }
+
+    public void oneComponentExprRest() throws ParserError {
+        if (currentToken.getTokenType() == TokenType.DOT) {
+            pollCurrentToken(TokenType.DOT);
+            objectMethod();
+        }
+
+    }
+
+    public void objectMethod() throws ParserError {
+        equalsMethod();
+    }
+
+    public void equalsMethod() throws ParserError {
+        pollCurrentToken(TokenType.EQUALS_TERM);
+        pollCurrentToken(TokenType.OPENING_BRACKET);
+        eqValue();
+        pollCurrentToken(TokenType.CLOSING_BRACKET);
+    }
+
+    public void whereExprContinuation() throws ParserError {
+        if (currentToken.getTokenType() == TokenType.LOGICAL_OPERATOR) {
+            pollCurrentToken(TokenType.LOGICAL_OPERATOR);
+            expr();
+        }
+    }
+
+    public void orderBy() throws ParserError {
+        if (currentToken.getTokenType() == TokenType.ORDER_BY) {
+            pollCurrentToken(TokenType.ORDER_BY);
+            value();
+            orderProperty();
+        }
+    }
+
+    public void orderProperty() throws ParserError {
+        if (currentToken.getTokenType() == TokenType.ASCENDING) {
+            pollCurrentToken(TokenType.ASCENDING);
+        } else if (currentToken.getTokenType() == TokenType.DESCENDING) {
+            pollCurrentToken(TokenType.DESCENDING);
+        }
+    }
+
+    public void select() throws ParserError {
+        pollCurrentToken(TokenType.SELECT);
+        selectExpression();
+    }
+
+    public void selectExpression() throws ParserError {
+        value(); //na razie tylko value
+    }
+
+    public void complexQueryCommand() throws ParserError {
+        pollCurrentToken(TokenType.OPENING_BRACKET);
+    }
+
+    public void methods() {
+
     }
 
     public void pollCurrentToken(TokenType tokenType) throws ParserError {

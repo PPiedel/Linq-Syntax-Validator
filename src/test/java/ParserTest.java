@@ -69,6 +69,18 @@ public class ParserTest {
     }
 
     @Test
+    public void simpleQueryCommandIsValid() throws TokenizerError {
+        String input = "var numsPlusOne = \n" +
+                "        from n in numbers \n" +
+                "        select n;";
+        Tokenizer tokenizer = new Tokenizer(input);
+        tokenizer.tokenize();
+
+        Parser parser = new Parser(tokenizer);
+        assertTrue(parser.valid());
+    }
+
+    @Test
     public void equation() {
     }
 
