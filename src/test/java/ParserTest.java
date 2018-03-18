@@ -49,6 +49,26 @@ public class ParserTest {
     }
 
     @Test
+    public void twoSimpleCommandsAreValid() throws TokenizerError {
+        String input = "var t123 = 456; var employee = 6;";
+        Tokenizer tokenizer = new Tokenizer(input);
+        tokenizer.tokenize();
+
+        Parser parser = new Parser(tokenizer);
+        assertTrue(parser.valid());
+    }
+
+    @Test
+    public void twoCommandsWithOneNotValidAreNOTValid() throws TokenizerError {
+        String input = "var t123 = 456; var employee = ;";
+        Tokenizer tokenizer = new Tokenizer(input);
+        tokenizer.tokenize();
+
+        Parser parser = new Parser(tokenizer);
+        assertFalse(parser.valid());
+    }
+
+    @Test
     public void equation() {
     }
 

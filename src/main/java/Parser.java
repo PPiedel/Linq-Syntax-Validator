@@ -1,3 +1,5 @@
+import javafx.scene.Parent;
+
 public class Parser {
     private Tokenizer tokenizer;
     private Token currentToken;
@@ -21,38 +23,44 @@ public class Parser {
     }
 
     public boolean valid() {
-        return start();
-    }
-
-    public boolean start() {
         boolean valid = false;
-        switch (currentToken.getTokenType()) {
-            case VARIABLE:
-                equation();
-                try {
-                    pollCurrentToken(TokenType.SEMICOLN);
-                    //current token should be EOF
-                    valid = true;
-                } catch (ParserError error) {
-                    parserError();
-                }
-
-                break;
-            default:
-                parserError();
+        try {
+            commands();
+            valid = true;
+        } catch (ParserError error) {
+            parserError();
         }
         return valid;
     }
 
-    public void equation() {
-        try {
-            pollCurrentToken(TokenType.VARIABLE); //var
-            pollCurrentToken(TokenType.ID); //costam
-            pollCurrentToken(TokenType.EQUALS); //=
-            eqValue(); //np. null
-        } catch (ParserError error) {
-            parserError();
+    protected void commands() throws ParserError {
+        boolean valid = false;
+        if (currentToken.getTokenType() == TokenType.EOF) {
+            pollCurrentToken(TokenType.EOF);
+        } else {
+            command();
+            commands();
         }
+    }
+
+    protected void command() throws ParserError {
+        switch (currentToken.getTokenType()) {
+            case VARIABLE:
+                equation();
+                pollCurrentToken(TokenType.SEMICOLN);
+                break;
+            default:
+                throw new ParserError("Parser error");
+        }
+    }
+
+
+    public void equation() throws ParserError {
+        pollCurrentToken(TokenType.VARIABLE); //var
+        pollCurrentToken(TokenType.ID); //costam
+        pollCurrentToken(TokenType.EQUALS); //=
+        eqValue(); //np. null
+
     }
 
     public void eqValue() throws ParserError {
@@ -79,7 +87,7 @@ public class Parser {
     public void pollCurrentToken(TokenType tokenType) throws ParserError {
         if (currentToken.getTokenType() != tokenType) {
             throw new ParserError("Parser error");
-        } else {
+        } else if (currentToken.getTokenType() != TokenType.EOF) {
             tryToTakeNextToken();
         }
     }
