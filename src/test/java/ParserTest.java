@@ -1,7 +1,5 @@
 import org.junit.Test;
 
-import java.util.Scanner;
-
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
 
@@ -15,7 +13,7 @@ public class ParserTest {
         tokenizer.tokenize();
 
         Parser parser = new Parser(tokenizer);
-        assertTrue(parser.valid());
+        assertTrue(parser.validate());
     }
 
     @Test
@@ -25,7 +23,7 @@ public class ParserTest {
         tokenizer.tokenize();
 
         Parser parser = new Parser(tokenizer);
-        assertTrue(parser.valid());
+        assertTrue(parser.validate());
     }
 
     @Test
@@ -35,7 +33,7 @@ public class ParserTest {
         tokenizer.tokenize();
 
         Parser parser = new Parser(tokenizer);
-        assertFalse(parser.valid());
+        assertFalse(parser.validate());
     }
 
     @Test
@@ -45,7 +43,7 @@ public class ParserTest {
         tokenizer.tokenize();
 
         Parser parser = new Parser(tokenizer);
-        assertFalse(parser.valid());
+        assertFalse(parser.validate());
     }
 
     @Test
@@ -55,7 +53,7 @@ public class ParserTest {
         tokenizer.tokenize();
 
         Parser parser = new Parser(tokenizer);
-        assertTrue(parser.valid());
+        assertTrue(parser.validate());
     }
 
     @Test
@@ -65,7 +63,7 @@ public class ParserTest {
         tokenizer.tokenize();
 
         Parser parser = new Parser(tokenizer);
-        assertFalse(parser.valid());
+        assertFalse(parser.validate());
     }
 
     @Test
@@ -77,7 +75,7 @@ public class ParserTest {
         tokenizer.tokenize();
 
         Parser parser = new Parser(tokenizer);
-        assertTrue(parser.valid());
+        assertTrue(parser.validate());
     }
 
     @Test
@@ -87,7 +85,7 @@ public class ParserTest {
         tokenizer.tokenize();
 
         Parser parser = new Parser(tokenizer);
-        assertTrue(parser.valid());
+        assertTrue(parser.validate());
     }
 
     @Test
@@ -97,7 +95,7 @@ public class ParserTest {
         tokenizer.tokenize();
 
         Parser parser = new Parser(tokenizer);
-        assertFalse(parser.valid());
+        assertFalse(parser.validate());
     }
 
     @Test
@@ -107,7 +105,7 @@ public class ParserTest {
         tokenizer.tokenize();
 
         Parser parser = new Parser(tokenizer);
-        assertTrue(parser.valid());
+        assertTrue(parser.validate());
     }
 
     @Test
@@ -117,7 +115,7 @@ public class ParserTest {
         tokenizer.tokenize();
 
         Parser parser = new Parser(tokenizer);
-        assertFalse(parser.valid());
+        assertFalse(parser.validate());
     }
 
     @Test
@@ -127,7 +125,7 @@ public class ParserTest {
         tokenizer.tokenize();
 
         Parser parser = new Parser(tokenizer);
-        assertTrue(parser.valid());
+        assertTrue(parser.validate());
     }
 
     @Test
@@ -137,7 +135,7 @@ public class ParserTest {
         tokenizer.tokenize();
 
         Parser parser = new Parser(tokenizer);
-        assertFalse(parser.valid());
+        assertFalse(parser.validate());
     }
 
     @Test
@@ -147,7 +145,7 @@ public class ParserTest {
         tokenizer.tokenize();
 
         Parser parser = new Parser(tokenizer);
-        assertTrue(parser.valid());
+        assertTrue(parser.validate());
     }
 
     @Test
@@ -157,6 +155,44 @@ public class ParserTest {
         tokenizer.tokenize();
 
         Parser parser = new Parser(tokenizer);
-        assertFalse(parser.valid());
+        assertFalse(parser.validate());
+    }
+
+    @Test
+    public void complexCommandWithEquationsIsValid() throws TokenizerError {
+        String input = "var query_orderby1 = from c in svcContext.ContactSet\n" +
+                "                      where !c.CreditLimit.Equals(null)\n" +
+                "                      orderby c.CreditLimit descending\n" +
+                "                      select new\n" +
+                "                      {\n" +
+                "                       limit = c.field1,\n" +
+                "                       first = c.field2,\n" +
+                "                       last = c.field3\n" +
+                "                      };";
+        Tokenizer tokenizer = new Tokenizer(input);
+        tokenizer.tokenize();
+
+        Parser parser = new Parser(tokenizer);
+        assertTrue(parser.validate());
+
+    }
+
+    @Test
+    public void complexCommandWithEquationsIsNOTValid() throws TokenizerError {
+        String input = "var query_orderby1 = from c in svcContext.ContactSet\n" +
+                "                      where !c.CreditLimit.Equals(null)\n" +
+                "                      orderby c.CreditLimit descending\n" +
+                "                      select new\n" +
+                "                      {\n" +
+                "                       limit = \n" +
+                "                       first = c.FirstName,\n" +
+                "                       last = c.LastName\n" +
+                "                      };";
+        Tokenizer tokenizer = new Tokenizer(input);
+        tokenizer.tokenize();
+
+        Parser parser = new Parser(tokenizer);
+        assertFalse(parser.validate());
+
     }
 }

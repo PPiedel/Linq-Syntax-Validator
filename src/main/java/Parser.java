@@ -22,7 +22,7 @@ public class Parser {
         System.out.println("Parser error with token " + currentToken.toString());
     }
 
-    public boolean valid() {
+    public boolean validate() {
         boolean valid = false;
         try {
             commands();
@@ -34,7 +34,6 @@ public class Parser {
     }
 
     protected void commands() throws ParserError {
-        boolean valid = false;
         if (currentToken.getTokenType() == TokenType.EOF) {
             pollCurrentToken(TokenType.EOF);
         } else {
@@ -46,6 +45,7 @@ public class Parser {
     protected void command() throws ParserError {
         switch (currentToken.getTokenType()) {
             case VARIABLE:
+                pollCurrentToken(TokenType.VARIABLE);
                 equation();
                 pollCurrentToken(TokenType.SEMICOLN);
                 break;
@@ -56,20 +56,26 @@ public class Parser {
 
 
     public void equation() throws ParserError {
-        pollCurrentToken(TokenType.VARIABLE); //var
-        pollCurrentToken(TokenType.ID); //costam
-        pollCurrentToken(TokenType.EQUALS); //=
-        eqValue(); //np. null
-
+        pollCurrentToken(TokenType.ID);
+        pollCurrentToken(TokenType.EQUALS);
+        eqValue();
     }
 
     public void eqValue() throws ParserError {
         if (currentToken.getTokenType() == TokenType.NULL) {
             pollCurrentToken(TokenType.NULL);
+        } else if (nextTokenType() == TokenType.DOT && nextTokenType() != null) {
+            objectField();
         } else {
             value();
         }
 
+    }
+
+    private TokenType nextTokenType() {
+        if (currentToken.getTokenNumber() + 1 < tokenizer.getTokens().size()) {
+            return tokenizer.getTokens().get(currentToken.getTokenNumber() + 1).getTokenType();
+        } else return null;
     }
 
     public void value() throws ParserError {
@@ -112,7 +118,7 @@ public class Parser {
     }
 
     public void collection() throws ParserError {
-        pollCurrentToken(TokenType.ID); //TODO not only ids
+        objectField();
     }
 
     public void queryBody() throws ParserError {
@@ -138,10 +144,12 @@ public class Parser {
                 pollCurrentToken(TokenType.NEGATION);
                 objectField();
                 oneComponentExprRest();
+                break;
             }
             case ID: {
                 pollCurrentToken(TokenType.ID);
                 fieldAccesses();
+                break;
             }
         }
     }
@@ -152,7 +160,7 @@ public class Parser {
     }
 
     public void fieldAccesses() throws ParserError {
-        if (currentToken.getTokenType() == TokenType.DOT) {
+        if (currentToken.getTokenType() == TokenType.DOT && nextTokenType() == TokenType.ID && nextTokenType() != null) {
             fieldAccess();
             fieldAccesses();
         }
@@ -166,7 +174,11 @@ public class Parser {
     public void oneComponentExprRest() throws ParserError {
         if (currentToken.getTokenType() == TokenType.DOT) {
             pollCurrentToken(TokenType.DOT);
-            objectMethod();
+            pollCurrentToken(TokenType.EQUALS_TERM);
+            pollCurrentToken(TokenType.OPENING_BRACKET);
+            eqValue();
+            pollCurrentToken(TokenType.CLOSING_BRACKET);
+
         }
 
     }
@@ -192,7 +204,7 @@ public class Parser {
     public void orderBy() throws ParserError {
         if (currentToken.getTokenType() == TokenType.ORDER_BY) {
             pollCurrentToken(TokenType.ORDER_BY);
-            value();
+            objectField();
             orderProperty();
         }
     }
@@ -211,8 +223,32 @@ public class Parser {
     }
 
     public void selectExpression() throws ParserError {
-        value(); //na razie tylko value
+        if (currentToken.getTokenType() == TokenType.NEW) {
+            newSelectExpr();
+        } else {
+            value();
+        }
     }
+
+    public void newSelectExpr() throws ParserError {
+        pollCurrentToken(TokenType.NEW);
+        pollCurrentToken(TokenType.OPENING_CURLING_BRACKET);
+        equations();
+        pollCurrentToken(TokenType.CLOSING_CURLING_BRACKET);
+    }
+
+    public void equations() throws ParserError {
+        equation();
+        equationCont();
+    }
+
+    public void equationCont() throws ParserError {
+        if (currentToken.getTokenType() == TokenType.COMMA) {
+            pollCurrentToken(TokenType.COMMA);
+            equations();
+        }
+    }
+
 
     public void complexQueryCommand() throws ParserError {
         pollCurrentToken(TokenType.OPENING_BRACKET);

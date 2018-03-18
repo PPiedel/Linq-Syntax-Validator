@@ -5,12 +5,14 @@ public final class Token {
     private final String value;
     private final int line;
     private final int column;
+    private final int tokenNumber;
 
-    public Token(TokenType tokenType, String value, int line, int column) {
+    public Token(TokenType tokenType, String value, int line, int column, int tokenNumber) {
         this.tokenType = tokenType;
         this.value = value;
         this.line = line;
         this.column = column;
+        this.tokenNumber = tokenNumber;
     }
 
     public TokenType getTokenType() {
@@ -27,6 +29,10 @@ public final class Token {
 
     public int getColumn() {
         return column;
+    }
+
+    public int getTokenNumber() {
+        return tokenNumber;
     }
 
     @Override

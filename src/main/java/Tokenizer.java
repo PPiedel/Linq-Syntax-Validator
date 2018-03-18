@@ -108,11 +108,11 @@ public class Tokenizer {
 
     public Token nextToken() throws TokenizerError {
         currentTokenNumber++;
-        if (currentTokenNumber-1 < tokens.size()) {
-            return tokens.get(currentTokenNumber-1);
+        if (currentTokenNumber - 1 < tokens.size()) {
+            return tokens.get(currentTokenNumber - 1);
 
         } else {
-            return new Token(TokenType.EOF, "EOF", line, column + 1);
+            return new Token(TokenType.EOF, "EOF", line, column + 1, currentTokenNumber);
         }
     }
 
@@ -132,7 +132,7 @@ public class Tokenizer {
         boolean matched = false;
         if (input.startsWith(excpected)) {
             matched = true;
-            tokens.add(new Token(tokenType, excpected, line, column));
+            tokens.add(new Token(tokenType, excpected, line, column, tokens.size()));
             consumeCharacters(excpected.length());
             skipBeginningWhiteSpaces();
         }
@@ -144,7 +144,7 @@ public class Tokenizer {
         boolean matched = false;
         if (matcher.lookingAt()) {
             matched = true;
-            tokens.add(new Token(tokenType, matcher.group(), line, column));
+            tokens.add(new Token(tokenType, matcher.group(), line, column, tokens.size()));
             consumeCharacters(matcher.end());
             skipBeginningWhiteSpaces();
         }
