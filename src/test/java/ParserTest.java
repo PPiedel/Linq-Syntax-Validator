@@ -81,18 +81,82 @@ public class ParserTest {
     }
 
     @Test
-    public void equation() {
+    public void complexQueryMinCommandIsValid() throws TokenizerError {
+        String input = "var numsPlusOne = (from n in numbers select n).Min();";
+        Tokenizer tokenizer = new Tokenizer(input);
+        tokenizer.tokenize();
+
+        Parser parser = new Parser(tokenizer);
+        assertTrue(parser.valid());
     }
 
     @Test
-    public void eqValue() {
+    public void complexQueryMinCommandIsNOTValid() throws TokenizerError {
+        String input = "var numsPlusOne = (from n in numbers select n).Min;";
+        Tokenizer tokenizer = new Tokenizer(input);
+        tokenizer.tokenize();
+
+        Parser parser = new Parser(tokenizer);
+        assertFalse(parser.valid());
     }
 
     @Test
-    public void value() {
+    public void complexQueryMaxCommandIsValid() throws TokenizerError {
+        String input = "var numsPlusOne = (from n in numbers select n).Max();";
+        Tokenizer tokenizer = new Tokenizer(input);
+        tokenizer.tokenize();
+
+        Parser parser = new Parser(tokenizer);
+        assertTrue(parser.valid());
     }
 
     @Test
-    public void pollCurrentToken() {
+    public void complexQueryMaxCommandIsNOTValid() throws TokenizerError {
+        String input = "var numsPlusOne = (from n in numbers select n.Max();";
+        Tokenizer tokenizer = new Tokenizer(input);
+        tokenizer.tokenize();
+
+        Parser parser = new Parser(tokenizer);
+        assertFalse(parser.valid());
+    }
+
+    @Test
+    public void complexQueryFirstOrDefaultCommandIsValid() throws TokenizerError {
+        String input = "var numsPlusOne = (from n in numbers select n).FirstOrDefault();";
+        Tokenizer tokenizer = new Tokenizer(input);
+        tokenizer.tokenize();
+
+        Parser parser = new Parser(tokenizer);
+        assertTrue(parser.valid());
+    }
+
+    @Test
+    public void complexQueryFirstOrDefaultCommandIsNOTValid() throws TokenizerError {
+        String input = "var numsPlusOne = (from n in numbers select n).FirstOrDefault);";
+        Tokenizer tokenizer = new Tokenizer(input);
+        tokenizer.tokenize();
+
+        Parser parser = new Parser(tokenizer);
+        assertFalse(parser.valid());
+    }
+
+    @Test
+    public void complexQueryOrderByDescendingCommandIsValid() throws TokenizerError {
+        String input = "var numsPlusOne = (from n in numbers select n).OrderByDescending();";
+        Tokenizer tokenizer = new Tokenizer(input);
+        tokenizer.tokenize();
+
+        Parser parser = new Parser(tokenizer);
+        assertTrue(parser.valid());
+    }
+
+    @Test
+    public void complexQueryOrderByDescendingCommandIsNOTValid() throws TokenizerError {
+        String input = "var numsPlusOne = (from n in numbers select n)OrderByDescending();";
+        Tokenizer tokenizer = new Tokenizer(input);
+        tokenizer.tokenize();
+
+        Parser parser = new Parser(tokenizer);
+        assertFalse(parser.valid());
     }
 }

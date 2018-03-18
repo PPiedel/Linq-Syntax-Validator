@@ -86,7 +86,7 @@ public class Parser {
                 complexQueryCommand();
                 break;
             }
-            case ID : {
+            case ID: {
                 pollCurrentToken(TokenType.ID);
                 break;
             }
@@ -216,10 +216,58 @@ public class Parser {
 
     public void complexQueryCommand() throws ParserError {
         pollCurrentToken(TokenType.OPENING_BRACKET);
+        simpleQueryCommand();
+        pollCurrentToken(TokenType.CLOSING_BRACKET);
+        methods();
     }
 
-    public void methods() {
+    public void methods() throws ParserError {
+        if (currentToken.getTokenType() == TokenType.DOT) {
+            pollCurrentToken(TokenType.DOT);
+            method();
+            methods();
+        }
+    }
 
+    public void method() throws ParserError {
+        switch (currentToken.getTokenType()) {
+            case MIN: {
+                pollCurrentToken(TokenType.MIN);
+                pollCurrentToken(TokenType.OPENING_BRACKET);
+                lambdaExpr();
+                pollCurrentToken(TokenType.CLOSING_BRACKET);
+                break;
+            }
+            case MAX: {
+                pollCurrentToken(TokenType.MAX);
+                pollCurrentToken(TokenType.OPENING_BRACKET);
+                lambdaExpr();
+                pollCurrentToken(TokenType.CLOSING_BRACKET);
+                break;
+            }
+            case FIRST_OR_DEFAULT: {
+                pollCurrentToken(TokenType.FIRST_OR_DEFAULT);
+                pollCurrentToken(TokenType.OPENING_BRACKET);
+                lambdaExpr();
+                pollCurrentToken(TokenType.CLOSING_BRACKET);
+                break;
+            }
+            case ORDER_BY_DESCENDING: {
+                pollCurrentToken(TokenType.ORDER_BY_DESCENDING);
+                pollCurrentToken(TokenType.OPENING_BRACKET);
+                lambdaExpr();
+                pollCurrentToken(TokenType.CLOSING_BRACKET);
+                break;
+            }
+        }
+    }
+
+    public void lambdaExpr() throws ParserError {
+        if (currentToken.getTokenType() == TokenType.ID) {
+            pollCurrentToken(TokenType.ID);
+            pollCurrentToken(TokenType.LAMBDA_OPERATOR);
+            expr();
+        }
     }
 
     public void pollCurrentToken(TokenType tokenType) throws ParserError {
