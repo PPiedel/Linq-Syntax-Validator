@@ -17,6 +17,16 @@ public class ParserTest {
     }
 
     @Test
+    public void assignNumberToIntIsValid() throws TokenizerError {
+        String input = "int temp = 5;";
+        Tokenizer tokenizer = new Tokenizer(input);
+        tokenizer.tokenize();
+
+        Parser parser = new Parser(tokenizer);
+        assertTrue(parser.validate());
+    }
+
+    @Test
     public void assigningNullIsValid() throws TokenizerError {
         String input = "var contoso = null;";
         Tokenizer tokenizer = new Tokenizer(input);
@@ -225,5 +235,59 @@ public class ParserTest {
         tokenizer.tokenize();
         Parser parser = new Parser(tokenizer);
         assertTrue(parser.validate());
+    }
+
+    @Test
+    public void complexQueryIsValid() throws TokenizerError {
+        String input = "var query_where3 = from c in svcContext.ContactSet\n" +
+                "                    where a.Name.Equals(\"Contoso\")\n" +
+                "                    where c.LastName.Equals(\"Smith\")\n" +
+                "                    select new\n" +
+                "                    {\n" +
+                "                     account_name = a.Name,\n" +
+                "                     contact_name = c.LastName\n" +
+                "                    };";
+        Tokenizer tokenizer = new Tokenizer(input);
+        tokenizer.tokenize();
+        Parser parser = new Parser(tokenizer);
+        assertTrue(parser.validate());
+
+    }
+
+    @Test
+    public void complexQueryIsNOTValid() throws TokenizerError {
+        String input = "var query_where3 = from c in svcContext.ContactSet\n" +
+                "                    where a.Name.Equals\n" +
+                "                    where c.LastName.Equals\n" +
+                "                    select new\n" +
+                "                    {\n" +
+                "                     account_name = a.Name,\n" +
+                "                     contact_name = c.LastName\n" +
+                "                    };";
+        Tokenizer tokenizer = new Tokenizer(input);
+        tokenizer.tokenize();
+        Parser parser = new Parser(tokenizer);
+        assertFalse(parser.validate());
+
+    }
+
+    @Test
+    public void veryComplexQueryIsNotValid() throws TokenizerError {
+        String input = "var queryLondonCustomers = from cust in customers\n" +
+                "    where cust.City.Equals(\"London\")\n" +
+                "    select cust;\n" +
+                "var query_where3 = from c in svcContext.ContactSet\n" +
+                "                    where a.Name.Equals(\"Contoso\")\n" +
+                "                    where c.LastName.Equals(\"Smith\")\n" +
+                "                    select new\n" +
+                "                    {\n" +
+                "                     account_name = a.Name,\n" +
+                "                     contact_name = c.LastName\n" +
+                "                    };";
+        Tokenizer tokenizer = new Tokenizer(input);
+        tokenizer.tokenize();
+        Parser parser = new Parser(tokenizer);
+        assertTrue(parser.validate());
+
     }
 }

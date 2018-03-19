@@ -49,6 +49,11 @@ public class Parser {
                 equation();
                 pollCurrentToken(TokenType.SEMICOLN);
                 break;
+            case DATA_TYPE:
+                pollCurrentToken(TokenType.DATA_TYPE);
+                equation();
+                pollCurrentToken(TokenType.SEMICOLN);
+                break;
             default:
                 throw new ParserError("Parser error");
         }
