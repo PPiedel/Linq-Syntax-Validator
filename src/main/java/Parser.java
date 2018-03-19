@@ -84,6 +84,10 @@ public class Parser {
                 pollCurrentToken(TokenType.NUMBER);
                 break;
             }
+            case STRING: {
+                pollCurrentToken(TokenType.STRING);
+                break;
+            }
             case FROM: {
                 simpleQueryCommand();
                 break;
@@ -149,6 +153,7 @@ public class Parser {
             case ID: {
                 pollCurrentToken(TokenType.ID);
                 fieldAccesses();
+                objectMethod();
                 break;
             }
         }
@@ -184,7 +189,10 @@ public class Parser {
     }
 
     public void objectMethod() throws ParserError {
-        equalsMethod();
+        if (currentToken.getTokenType() == TokenType.DOT) {
+            pollCurrentToken(TokenType.DOT);
+            equalsMethod();
+        }
     }
 
     public void equalsMethod() throws ParserError {

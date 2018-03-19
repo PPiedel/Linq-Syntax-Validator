@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 public class Tokenizer {
     public static final Pattern ID_PATTERN = Pattern.compile("^[a-zA-Z][a-zA-z0-9_]*");
     public static final Pattern NUMBER_PATTERN = Pattern.compile("[0-9]+");
+    public static final Pattern STRING_PATTERN = Pattern.compile("\"[a-zA-Z0-9]*\"");
     private static final LinkedHashMap<String, TokenType> keywords = new LinkedHashMap<>();
     private static final HashMap<String, TokenType> characters = new HashMap<>();
     private String input;
@@ -42,7 +43,6 @@ public class Tokenizer {
         characters.put("=", TokenType.EQUALS);
         characters.put(";", TokenType.SEMICOLN);
         characters.put(".", TokenType.DOT);
-        characters.put("\"", TokenType.QUOTATION_MARK);
         characters.put("!", TokenType.NEGATION);
         characters.put("=>", TokenType.LAMBDA_OPERATOR);
         characters.put(",", TokenType.COMMA);
@@ -94,7 +94,10 @@ public class Tokenizer {
             }
 
             if (!tokened) {
-                tokened = tryToMatchRegex(NUMBER_PATTERN, TokenType.NUMBER) || tryToMatchKeywords() || tryToMatchRegex(ID_PATTERN, TokenType.ID);
+                tokened = tryToMatchRegex(NUMBER_PATTERN, TokenType.NUMBER)
+                        || tryToMatchKeywords()
+                        || tryToMatchRegex(ID_PATTERN, TokenType.ID)
+                        || tryToMatchRegex(STRING_PATTERN, TokenType.STRING);
             }
 
             if (!tokened) {

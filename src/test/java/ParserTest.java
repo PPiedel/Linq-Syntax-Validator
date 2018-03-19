@@ -195,4 +195,35 @@ public class ParserTest {
         assertFalse(parser.validate());
 
     }
+
+    @Test
+    public void lambdaExprWithMinIsValid() throws TokenizerError {
+        String input = "var numsPlusOne = (from n in numbers select n).Min(t=>t.field);";
+        Tokenizer tokenizer = new Tokenizer(input);
+        tokenizer.tokenize();
+
+        Parser parser = new Parser(tokenizer);
+        assertTrue(parser.validate());
+    }
+
+    @Test
+    public void lambdaExprWithMinIsNOTValid() throws TokenizerError {
+        String input = "var numsPlusOne = (from n in numbers select n).Min(t t.field);";
+        Tokenizer tokenizer = new Tokenizer(input);
+        tokenizer.tokenize();
+
+        Parser parser = new Parser(tokenizer);
+        assertFalse(parser.validate());
+    }
+
+    @Test
+    public void whereWithTwoComponentExprIsValid() throws TokenizerError {
+        String input = "var queryLondonCustomers = from cust in customers\n" +
+                "    where cust.City.Equals(\"London\")\n" +
+                "    select cust;";
+        Tokenizer tokenizer = new Tokenizer(input);
+        tokenizer.tokenize();
+        Parser parser = new Parser(tokenizer);
+        assertTrue(parser.validate());
+    }
 }

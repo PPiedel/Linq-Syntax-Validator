@@ -191,6 +191,19 @@ public class TokenizerTest {
         }
     }
 
+    @Test
+    public void stringTokenizerTest() {
+        String input = "int firstOrDefault = \"abcd\"";
+        Tokenizer tokenizer = new Tokenizer(input);
+        try {
+            tokenizer.tokenize();
+            assertEquals(4, tokenizer.getTokens().size());
+            assertEquals(TokenType.STRING,tokenizer.getTokens().get(3).getTokenType());
+        } catch (TokenizerError error) {
+            System.out.println(error.getMessage());
+        }
+    }
+
 
 }
 
