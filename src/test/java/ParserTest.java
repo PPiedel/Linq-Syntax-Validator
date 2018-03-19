@@ -288,6 +288,41 @@ public class ParserTest {
         tokenizer.tokenize();
         Parser parser = new Parser(tokenizer);
         assertTrue(parser.validate());
+    }
 
+    @Test
+    public void veryComplexQueryIsValidWithUsageOfFirstOrDefault() throws TokenizerError {
+        String input="var query_orderby1 = (from c in svcContext.ContactSet\n" +
+                "                      where !c.CreditLimit.Equals(null)\n" +
+                "                      orderby c.CreditLimit descending\n" +
+                "                      select new\n" +
+                "                      {\n" +
+                "                       limit = c.CreditLimit,\n" +
+                "                       first = c.FirstName,\n" +
+                "                       last = c.LastName\n" +
+                "                      }).FirstOrDefault();";
+
+        Tokenizer tokenizer = new Tokenizer(input);
+        tokenizer.tokenize();
+        Parser parser = new Parser(tokenizer);
+        assertTrue(parser.validate());
+    }
+
+    @Test
+    public void veryComplexQueryIsValidWithUsageOfMinWithLambdaExpr() throws TokenizerError {
+        String input="var query_orderby1 = (from c in svcContext.ContactSet\n" +
+                "                      where !c.CreditLimit.Equals(null)\n" +
+                "                      orderby c.CreditLimit descending\n" +
+                "                      select new\n" +
+                "                      {\n" +
+                "                       limit = c.CreditLimit,\n" +
+                "                       first = c.FirstName,\n" +
+                "                       last = c.LastName\n" +
+                "                      }).Min(t=>t.field);";
+
+        Tokenizer tokenizer = new Tokenizer(input);
+        tokenizer.tokenize();
+        Parser parser = new Parser(tokenizer);
+        assertTrue(parser.validate());
     }
 }
